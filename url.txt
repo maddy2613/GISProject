@@ -1,0 +1,1 @@
+https://services2.arcgis.com/mJaJSax0KPHoCNB6/arcgis/rest/services/TEST_PoleClearing_Master_view/FeatureServer/1

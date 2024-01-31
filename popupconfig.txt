@@ -1,0 +1,5 @@
+009616360f3942599b8b09c0c857a943
+https://services2.arcgis.com/mJaJSax0KPHoCNB6/arcgis/rest/services/TEST_PoleClearing_Master_view/FeatureServer/1
+VCPoleNum
+Directions
+***********************

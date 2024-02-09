@@ -16,6 +16,7 @@ log_level = logging.INFO
 filename = log_path + datetime.datetime.now().strftime('%Y_%m_%d.log')
 logging.basicConfig(filename=filename, format=log_format,
                     level=log_level)
+
 def update_popup_Layer(operation_layer,map,token,web_map):
     try:
         if operation_layer.layerType == 'GroupLayer':
@@ -24,12 +25,13 @@ def update_popup_Layer(operation_layer,map,token,web_map):
                     try:
                         obj_layer = map['layers'][layer_obj.url]
                         oprn_lyr_fields = {}
-                        if hasattr(layer_obj,'popupInfo'):
+                        if True:
                             layerObjRest = requests.get('{0}?token={1}&f=pjson'.format(layer_obj.url, token))
                             if layerObjRest.status_code == 200:
                                 for fields_obj in layerObjRest.json()['fields']:
                                     oprn_lyr_fields[fields_obj['alias']] = fields_obj['name']
                                 fileds_info = []
+                                print('Test Layer')
                                 for l_fields in obj_layer['fields']:
                                     try:
                                         fileds_info.append({
@@ -41,13 +43,26 @@ def update_popup_Layer(operation_layer,map,token,web_map):
                                         logger.info('aliyas not exist in the operation layer {0}'.format(l_fields['aliyas']))
                                         print('aliyas not exist in the operation layer {0}'.format(l_fields['aliyas']))
                                         continue
+                                desc = ''
+                                expression = []
+                                try:
+                                    desc = layer_obj.popupInfo["description"]
+                                    expression =  layer_obj.popupInfo["expressionInfos"]
+                                except Exception as err4:
+                                    print(err4)
                                 popup_info = {
                                     "title": layer_obj['title'],
+                                    "popupElements": [
+                                        {
+                                        "type":"fields",
+                                        "fieldInfos": fileds_info                                            
+                                        }
+                                        ],
                                     "fieldInfos": fileds_info,
-                                    "description":operation_layer.popupInfo["description"],
-                                    "expressionInfos":operation_layer.popupInfo["expressionInfos"]
+                                    "description": desc,
+                                    "expressionInfos": expression
                                 }
-                                operation_layer.popupInfo = popup_info
+                                layer_obj.popupInfo = popup_info
                                 web_map.update()
                                 logger.info('web map popup info updated successfully.. Item Id id {}'.format(layer_obj['title']))
                                 print('web map popup info updated successfully.. Item Id id {}'.format(layer_obj['title']))
@@ -69,25 +84,26 @@ def update_webmaps_layer_popups():
     try:
         logger.info('process started..!!!')
         gis = GIS("home")
-        webmap_obj = configReader.read_webmap_layer_fields()
-        logger.info(webmap_obj)
-        # exit(0)
 
-        webmaps = configReader.get_fields_mappings_by_webmap_layers()
+        webmaps = configReader.read_webmap_layer_fields()
         token = gis._con.token
         # logger.info(webmaps)
-        for map in webmap_obj:
+        for map in webmaps:
             try:
                 web_map_item = gis.content.get(map['itemId'])
                 web_map = WebMap(web_map_item)
                 # print(web_map)
                 for operation_layer in web_map.layers:
                     try:
+                        #print(operation_layer)
+                        logger.info(operation_layer)
+                        #continue
                         if operation_layer.layerType == 'GroupLayer':
                             update_popup_Layer(operation_layer,map,token,web_map)
                             continue
                         layer_obj = map['layers'][operation_layer.url]
                         try:
+                            #print(layer_obj['popupTitle'])
                             oprn_lyr_fields = {}
                             layerObjRest = requests.get('{0}?token={1}&f=pjson'.format(operation_layer.url, token))
                             if layerObjRest.status_code == 200:
@@ -106,19 +122,23 @@ def update_webmaps_layer_popups():
                                         logger.info('aliyas not exist in the operation layer {0}'.format(l_fields['aliyas']))
                                         continue
                                 popup_info = {
-                                    "title": layer_obj['popupTitle'],
-                                    "fieldInfos": fileds_info,
-                                    "description": operation_layer.popupInfo["description"],
-                                    "expressionInfos": operation_layer.popupInfo["expressionInfos"]
+                                  "title":operation_layer.title,
+                                  "description":operation_layer.popupInfo["description"],
+                                  "expressionInfos":operation_layer.popupInfo["expressionInfos"],
+                                  "fieldInfos": fileds_info
                                 }
-                                operation_layer.popupInfo = popup_info
+                                
+                                operation_layer.popupInfo =popup_info
                                 web_map.update()
+                                logger.info('web map popup info updated successfully.. Item Id id {}'.format(map['itemId']))
+                                print('web map popup info updated successfully.. Item Id id {}'.format(map['itemId']))
                         except Exception as err1:
+                            logger.error(err1)
                             continue
                         print(layer_obj)
                     except Exception as err:
+                        logger.error('Error Occured While Reading Operation Layer {0}'.format(err))
                         continue
-                logger.info('web map popup info updated successfully.. Item Id id {}'.format(map['itemId']))
             except Exception as err3:
                 logger.error('error occurd while updating popup info {}'.format(err3))
                 continue

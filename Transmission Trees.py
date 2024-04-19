@@ -7,8 +7,8 @@ import csv
 import pandas as pd
 import arcpy
 
-csv_file_path = r'C:\Users\srv\Downloads\Book1.csv'
-log_path = r'C:\Users\srv\Downloads\logs'
+csv_file_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Book1.csv'
+log_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Logs'
 logger = logging.getLogger("LoggerName")
 log_format = "%(asctime)s - %(levelname)s - %(message)s"
 log_level = logging.INFO
@@ -57,16 +57,20 @@ print(data)
 feature_attributes=[];
 for index, row in data.iterrows():
     feature_obj = {}
-    point_geometry = {}
+    point_geometry =arcpy.Point()
+    
     spatial_reference = arcpy.SpatialReference(4326)
+    print(configObject['fieldsList'])   
     for col in configObject['fieldsList']:
         try:
             if col['sql_field'] == 'Longitude':
-                point_geometry["Y"] = row[col]
-                continue
+                #point_geometry["Y"] = row[col['sql_field']]
+                point_geometry.Y = row[col['sql_field']]
+                print(row[col['sql_field']])
             if col['sql_field'] == 'Latitude':
-                point_geometry["X"] = row[col]
-                continue
+                #point_geometry["X"] = row[col['sql_field']]
+                point_geometry.X = row[col['sql_field']]
+                print(row[col['sql_field']])
             value = None
             if col['gis_datatype'] == 'boolean':
                 if row[col['sql_field']] == 'Yes':
@@ -79,13 +83,16 @@ for index, row in data.iterrows():
                 value = int(row[col['sql_field']])
             elif col['gis_datatype'] == 'decimal':
                 value = float(row[col['sql_field']])
+                print(value)
             else:
                 value = row[col['sql_field']]
             feature_obj[col['gis_field']] = value
         except Exception as err:
             logger.warning(err)
+            print(err)
+    pointG = arcpy.PointGeometry(point_geometry, spatial_reference).projectAs(arcpy.SpatialReference(102100))
     feature = {"attributes": feature_obj,
-               "geometry": {"x": point_geometry["X"], "y": point_geometry["Y"]}
+               "geometry": {"x": point_geometry.centroid.X, "y": point_geometry.centroid.Y}
                }
     feature_attributes.append(feature)
 print(feature_attributes)
@@ -99,4 +106,3 @@ for obj in add_results['addResults']:
         count = count+1
 print('{} successfully inserted features'.format(count))
 logger.info('{} successfully inserted features'.format(count))
-

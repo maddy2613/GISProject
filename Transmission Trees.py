@@ -53,30 +53,26 @@ conn = pyodbc.connect(configObject['dbconnection'])
 data = pd.read_sql(configObject['sqlcommand'], conn)
 conn.close()
 logger.info('successfully read data from sql View')
-print(data)
+# print(data)
+count = 0
 feature_attributes=[];
 for index, row in data.iterrows():
     feature_obj = {}
     point_geometry =arcpy.Point()
-    
     spatial_reference = arcpy.SpatialReference(4326)
     print(configObject['fieldsList'])   
     for col in configObject['fieldsList']:
         try:
             if col['sql_field'] == 'Longitude':
-                #point_geometry["Y"] = row[col['sql_field']]
                 try:
                     point_geometry.X = row[col['sql_field']]
                 except Exception as Err2:
                     break
-                #print(row[col['sql_field']])
             if col['sql_field'] == 'Latitude':
-                #point_geometry["X"] = row[col['sql_field']]
                 try:
                     point_geometry.Y = row[col['sql_field']]
                 except Exception as Err3:
                     break
-                #print(row[col['sql_field']])
             value = None
             if col['gis_datatype'] == 'boolean':
                 if row[col['sql_field']] == 'Yes':
@@ -107,7 +103,6 @@ for index, row in data.iterrows():
                 try:
                     value = row[col['sql_field']]
                 except Exception as err1:
-                    #value = None
                     break
                 #print(value)
             else:
@@ -122,9 +117,10 @@ for index, row in data.iterrows():
                "geometry": {"x": pointG.centroid.X, "y": pointG.centroid.Y}
                }
         feature_attributes.append(feature)
-        add_results = feature_layer.edit_features(adds = feature_attributes)
+        add_results = feature_layer.edit_features(adds = [feature])
         feature_attributes = []
         print(add_results)
+        count = count + 1
     except Exception as err5:
         print(err5)
         continue
@@ -136,5 +132,5 @@ for index, row in data.iterrows():
 # for obj in add_results['addResults']:
 #     if obj['success'] :
 #         count = count+1
-# print('{} successfully inserted features'.format(count))
-# logger.info('{} successfully inserted features'.format(count))
+print('{} successfully inserted features'.format(count))
+logger.info('{} successfully inserted features'.format(count))

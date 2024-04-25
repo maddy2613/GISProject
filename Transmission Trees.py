@@ -7,8 +7,8 @@ import csv
 import pandas as pd
 import arcpy
 
-csv_file_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Book1.csv'
-log_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Logs'
+csv_file_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Append data\Book1.csv'
+log_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Append data\Logs'
 logger = logging.getLogger("LoggerName")
 log_format = "%(asctime)s - %(levelname)s - %(message)s"
 log_level = logging.INFO
@@ -65,44 +65,76 @@ for index, row in data.iterrows():
         try:
             if col['sql_field'] == 'Longitude':
                 #point_geometry["Y"] = row[col['sql_field']]
-                point_geometry.Y = row[col['sql_field']]
-                print(row[col['sql_field']])
+                try:
+                    point_geometry.X = row[col['sql_field']]
+                except Exception as Err2:
+                    break
+                #print(row[col['sql_field']])
             if col['sql_field'] == 'Latitude':
                 #point_geometry["X"] = row[col['sql_field']]
-                point_geometry.X = row[col['sql_field']]
-                print(row[col['sql_field']])
+                try:
+                    point_geometry.Y = row[col['sql_field']]
+                except Exception as Err3:
+                    break
+                #print(row[col['sql_field']])
             value = None
             if col['gis_datatype'] == 'boolean':
                 if row[col['sql_field']] == 'Yes':
                     value = 1
                 if row[col['sql_field']] == 'No':
                     value = 0
+            if col['gis_datatype'] == 'varchar':
+                if row[col['sql_field']] == 'XYZ':
+                    value = 1
+                if row[col['sql_field']] == 'No':
+                    value = 0
             elif col['gis_datatype'] == 'nvarchar':
                 value = row[col['sql_field']]
+                if value is not None:
+                    value = value.replace("<","&lt;")
+                    value = value.replace(">","&gt;")
             elif col['gis_datatype'] == 'int':
-                value = int(row[col['sql_field']])
+                try:
+                    value = int(row[col['sql_field']])
+                except Exception as err1:
+                    value = 0
             elif col['gis_datatype'] == 'decimal':
-                value = float(row[col['sql_field']])
-                print(value)
+                try:
+                    value = float(row[col['sql_field']])
+                except Exception as err1:
+                    value = 0
+            elif col['gis_datatype'] == 'Date':
+                try:
+                    value = row[col['sql_field']]
+                except Exception as err1:
+                    #value = None
+                    break
+                #print(value)
             else:
                 value = row[col['sql_field']]
             feature_obj[col['gis_field']] = value
         except Exception as err:
             logger.warning(err)
             print(err)
-    pointG = arcpy.PointGeometry(point_geometry, spatial_reference).projectAs(arcpy.SpatialReference(102100))
-    feature = {"attributes": feature_obj,
-               "geometry": {"x": point_geometry.centroid.X, "y": point_geometry.centroid.Y}
+    try:
+        pointG = arcpy.PointGeometry(point_geometry, spatial_reference).projectAs(arcpy.SpatialReference(102100))
+        feature = {"attributes": feature_obj,
+               "geometry": {"x": pointG.centroid.X, "y": pointG.centroid.Y}
                }
-    feature_attributes.append(feature)
-print(feature_attributes)
-logger.info(feature_attributes)
-add_results = feature_layer.edit_features(adds = feature_attributes)
-print(add_results)
-logger.info(add_results)
-count = 0
-for obj in add_results['addResults']:
-    if obj['success'] :
-        count = count+1
-print('{} successfully inserted features'.format(count))
-logger.info('{} successfully inserted features'.format(count))
+        feature_attributes.append(feature)
+        add_results = feature_layer.edit_features(adds = feature_attributes)
+        feature_attributes = []
+        print(add_results)
+    except Exception as err5:
+        print(err5)
+        continue
+# print(feature_attributes)
+# logger.info(feature_attributes)
+# print(add_results)
+# logger.info(add_results)
+# count = 0
+# for obj in add_results['addResults']:
+#     if obj['success'] :
+#         count = count+1
+# print('{} successfully inserted features'.format(count))
+# logger.info('{} successfully inserted features'.format(count))

@@ -1,55 +1,8 @@
 <?xml version="1.0"?>
 <config>
-    <portalUrl>https://arcgis-online-portal-url/portal</portalUrl>
-    <portalusername>username</portalusername>
-    <portalpassword>password</portalpassword>
-    <logpath>C:\SyncTool\logs\\</logpath>
-<maps>
-	<webMap name="webmap1" ItemId="web-map-item-Id" popupsync="true">
-		<layer  name="layer_name_1" url="arcgis-service-url" popupTitle="popup title name" >
-          <field name="field1" aliyasName="field name 1" order="1"/>
-          <field name="field1" aliyasName="field name 2" order="2"/>
-          <field name="field1" aliyasName="field name 3" order="3"/>
-          <field name="field1" aliyasName="field name 4" order="4"/>
-          <field name="field1" aliyasName="field name 5" order="5"/>
-       </layer>
-	   <layer  name="layer_name_2" url="arcgis-service-url" popupTitle="popup title name" >
-          <field name="field1" aliyasName="field name 1" order="1"/>
-          <field name="field1" aliyasName="field name 2" order="2"/>
-          <field name="field1" aliyasName="field name 3" order="3"/>
-          <field name="field1" aliyasName="field name 4" order="4"/>
-          <field name="field1" aliyasName="field name 5" order="5"/>
-       </layer>
-	   <layer  name="layer_name_3" url="arcgis-service-url" popupTitle="popup title name" >
-          <field name="field1" aliyasName="field name 1" order="1"/>
-          <field name="field1" aliyasName="field name 2" order="2"/>
-          <field name="field1" aliyasName="field name 3" order="3"/>
-          <field name="field1" aliyasName="field name 4" order="4"/>
-          <field name="field1" aliyasName="field name 5" order="5"/>
-       </layer>
-	</webMap>
-	<webMap name="webmap2" ItemId="web-map-item-Id" popupsync="true">
-		<layer  name="layer_name_1" url="arcgis-service-url" popupTitle="popup title name" >
-          <field name="field1" aliyasName="field name 1" order="1"/>
-          <field name="field1" aliyasName="field name 2" order="2"/>
-          <field name="field1" aliyasName="field name 3" order="3"/>
-          <field name="field1" aliyasName="field name 4" order="4"/>
-          <field name="field1" aliyasName="field name 5" order="5"/>
-       </layer>
-	   <layer  name="layer_name_2" url="arcgis-service-url" popupTitle="popup title name" >
-          <field name="field1" aliyasName="field name 1" order="1"/>
-          <field name="field1" aliyasName="field name 2" order="2"/>
-          <field name="field1" aliyasName="field name 3" order="3"/>
-          <field name="field1" aliyasName="field name 4" order="4"/>
-          <field name="field1" aliyasName="field name 5" order="5"/>
-       </layer>
-	   <layer  name="layer_name_3" url="arcgis-service-url" popupTitle="popup title name" >
-          <field name="field1" aliyasName="field name 1" order="1"/>
-          <field name="field1" aliyasName="field name 2" order="2"/>
-          <field name="field1" aliyasName="field name 3" order="3"/>
-          <field name="field1" aliyasName="field name 4" order="4"/>
-          <field name="field1" aliyasName="field name 5" order="5"/>
-       </layer>
-	</webMap>
-</maps>
+  <sdeconnection>C:\Users\l7bw\OneDrive - PGE\Desktop\Prod Data Append 0617.gdb</sdeconnection>
+  <spanfc>FTI_SpanInspection_QC_Not_Ready_0617</spanfc>
+  <treefc>FTI_TreePrescription_QC_Not_Ready_0617</treefc>
+  <search_radius>500 DecimalDegrees</search_radius>
+  <tempFcLocation>C:\Users\l7bw\OneDrive - PGE\Desktop\Near Analysis\temp.gdb</tempFcLocation>
 </config>

@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<config>
-  <sdeconnection>C:\Users\l7bw\OneDrive - PGE\Desktop\Prod Data Append 0617.gdb</sdeconnection>
-  <spanfc>FTI_SpanInspection_QC_Not_Ready_0617</spanfc>
-  <treefc>FTI_TreePrescription_QC_Not_Ready_0617</treefc>
-  <search_radius>500 DecimalDegrees</search_radius>
-  <tempFcLocation>C:\Users\l7bw\OneDrive - PGE\Desktop\Near Analysis\temp.gdb</tempFcLocation>
-</config>

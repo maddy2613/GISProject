@@ -22,6 +22,7 @@ sde_connection = root.find('sdeconnection').text
 temp_gdbLoc = root.find('tempFcLocation').text
 span_fc = root.find('spanfc').text
 tree_fc = root.find('treefc').text
+hosted_fcItemId = root.find('hostedFeatureItemId').text
 arcpy.env.workspace = sde_connection
 feature_classes = arcpy.ListFeatureClasses()
 if not arcpy.Exists(os.path.join(temp_gdbLoc,"temp.gdb")):
@@ -79,3 +80,40 @@ with arcpy.da.UpdateCursor(tree_fc, fields) as cursor:
             logger.info('failed while updating fileds')
             print('failed while updating fileds')
             continue
+
+gis = GIS("Home")
+feature_layer_item = gis.content.get(hosted_fcItemId)
+feature_layer = feature_layer_item.layers[0]  # Assumes you are targeting the first layer
+
+# Truncate (delete all features from) the FeatureLayer
+feature_layer.delete_features(where="1=1")
+##################################################################
+# first approach
+##################################################################
+# Read the FeatureClass into a FeatureSet
+feature_set = arcpy.FeatureSet()
+feature_set.load(tree_fc)
+# Convert arcpy FeatureSet to ArcGIS FeatureCollection
+features = [f for f in feature_set]
+
+# Insert features into the hosted FeatureLayer
+feature_layer.edit_features(adds=features)
+
+#############################################################################
+# second approach
+#############################################################################
+# fields = ['SHAPE@', 'field1', 'field2', 'field3']  # Replace with your specific fields
+
+# # Read the features with selected fields
+# features = []
+# with arcpy.da.SearchCursor(tree_fc, fields) as cursor:
+#     for row in cursor:
+#         attributes = dict(zip(fields, row))
+#         features.append({
+#             "attributes": {k: v for k, v in attributes.items() if k != 'SHAPE@'},
+#             "geometry": attributes['SHAPE@'].__geo_interface__  # Convert geometry to GeoJSON format
+#         })
+
+# # Insert selected features into the hosted FeatureLayer
+# feature_layer.edit_features(adds=features)
+print('Features added successfully.')

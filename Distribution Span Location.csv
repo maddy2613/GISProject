@@ -1,0 +1,53 @@
+dbconnection,DRIVER={SQL Server};SERVER=dvitgisdbsws001;DATABASE=MIDQualitySolutions;Trusted_Connection=yes;,
+sqlcommand,"SELECT *,0 as ORIG_FID
+  FROM [MIDQualitySolutions].[qs].[QAP_DistributionSpanInspection_VW]",
+ItemId,d203bf6c259b40ae848ef23d407d8b98,
+SQLFieldname,GISFieldname,DataType
+eplong,eplong,decimal
+eplat,eplat,decimal
+FEET,FEET,decimal
+INSP_DATE,INSP_DATE,Date
+INSPECTOR_ID,INSPECTOR_ID,nvarchar
+INSPECTOR_NAME,INSPECTOR_NAME,nvarchar
+Map_Delivery_Date,Map_Delivery_Date,nvarchar
+ORIG_FID,ORIG_FID,int
+SPAN_HFTD,SPAN_HFTD,nvarchar
+SPAN_ID,Span_ID_1,nvarchar
+SPAN_LAT,SPAN_LAT,decimal
+SPAN_LONG,SPAN_LONG,decimal
+splong,splong,decimal
+splat,splat,decimal
+QA Audit ID,QA_P_Audit_ID,nvarchar
+FTAssigned,FTAssigned,nvarchar
+QC Audit ID,QC_Audit_ID,nvarchar
+QC AWRR ID,QC_AWRR_ID,nvarchar
+QC Date,QC_Date,Date
+PROJ_ID,PROJ_ID,nvarchar
+PROJ_NAME,PROJ_NAME,nvarchar
+PROJ_BUNDLE,PROJ_BUNDLE,nvarchar
+PROJ_REGION,PROJ_REGION,nvarchar
+PROJ_DIVISION,PROJ_DIVISION,nvarchar
+PROJ_SERVICE_TERRITORY,PROJ_SERVICE_TERRITORY,nvarchar
+PROJ_PROGRAM,PROJ_PROGRAM,nvarchar
+PROJ_NUMBER,PROJ_NUMBER,nvarchar
+PROJ_TYPE,PROJ_TYPE,nvarchar
+PROJ_RECORD_TYPE,PROJ_RECORD_TYPE,nvarchar
+PROJ_YEAR,PROJ_YEAR,decimal
+PROJ_QUARTER,PROJ_QUARTER,nvarchar
+PROJ_PATROL_TYPE,PROJ_PATROL_TYPE,nvarchar
+ROUTE_ID,ROUTE_ID,decimal
+INSPECTOR_PGE_ID,INSPECTOR_PGE_ID,nvarchar
+INSPECTED,INSPECTED,nvarchar
+INSP_COMPANY,INSP_COMPANY,nvarchar
+WO_NUM,WO_NUM,decimal
+WOLI_STATUS,WOLI_STATUS,nvarchar
+WO_VENDOR,WO_VENDOR,nvarchar
+WOLI_EVM_RELEVANT,WOLI_EVM_RELEVANT,nvarchar
+Load_Date,Load_Date,Date
+QCResponsibleArea,WVResponsibleArea,nvarchar
+QA_ChecklistStatus,QAP_ChecklistStatus,nvarchar
+QA_FieldMapStatus,QAP_FieldMapStatus,nvarchar
+QA_ChecklistDate,QAP_ChecklistDate,Date
+Checklist_Status,Checklist_Status,nvarchar
+dp_logic_applied,dp_logic_applied,nvarchar
+WO_LINE_ITEM_NUM,WO_LINE_ITEM_NUM,nvarchar

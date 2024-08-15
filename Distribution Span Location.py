@@ -6,9 +6,10 @@ import datetime
 import csv
 import pandas as pd
 import arcpy
+from arcgis.geometry import Geometry, project
 
-csv_file_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Append data\Transmission Trees\Transmission Trees.csv'
-log_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Append data\Transmission Trees\Logs'
+csv_file_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Append data\Distribution Span Location\Distribution Span Location.csv'
+log_path = r'C:\Users\l7bw\OneDrive - PGE\Desktop\Append data\Distribution Span Location\Logs'
 logger = logging.getLogger("LoggerName")
 log_format = "%(asctime)s - %(levelname)s - %(message)s"
 log_level = logging.INFO
@@ -59,18 +60,37 @@ feature_attributes=[];
 for index, row in data.iterrows():
     feature_obj = {}
     point_geometry =arcpy.Point()
+    end_point_geometry =arcpy.Point()
     spatial_reference = arcpy.SpatialReference(4326)
-    #print(configObject['fieldsList'])   
+    array= arcpy.Array()
+    #print(configObject['fieldsList'])
+    point1 =[]
+    point2 =[]
     for col in configObject['fieldsList']:
         try:
-            if col['sql_field'] == 'Longitude':
+            if col['sql_field'] == 'splong':
                 try:
-                    point_geometry.X = row[col['sql_field']]
+                    # point_geometry.X = row[col['sql_field']]
+                    point1.append(row[col['sql_field']])
                 except Exception as Err2:
                     break
-            if col['sql_field'] == 'Latitude':
+            if col['sql_field'] == 'splat':
                 try:
-                    point_geometry.Y = row[col['sql_field']]
+                    # point_geometry.Y = row[col['sql_field']]
+                    point1.append(row[col['sql_field']])
+                except Exception as Err3:
+                    break
+            
+            if col['sql_field'] == 'eplong':
+                try:
+                    # end_point_geometry.X = row[col['sql_field']]
+                    point2.append(row[col['sql_field']])
+                except Exception as Err2:
+                    break
+            if col['sql_field'] == 'eplat':
+                try:
+                    # end_point_geometry.Y = row[col['sql_field']]
+                    point2.append(row[col['sql_field']])
                 except Exception as Err3:
                     break
             value = None
@@ -121,14 +141,25 @@ for index, row in data.iterrows():
             logger.warning(err)
             print(err)
     try:
-        pointG = arcpy.PointGeometry(point_geometry, spatial_reference).projectAs(arcpy.SpatialReference(102100))
+        # pointG = arcpy.PointGeometry(point_geometry, spatial_reference).projectAs(arcpy.SpatialReference(102100))
+        # e_pointG = arcpy.PointGeometry(end_point_geometry, spatial_reference).projectAs(arcpy.SpatialReference(102100))
+        # array.add(point_geometry)
+        # array.add(end_point_geometry)
+        # polyline= arcpy.Polyline(array)
+        #feature_obj["SHAPE"]= polyline
+        paths_arr = [point1,point2]
+        polyline = {
+            "paths": [paths_arr],
+            "spatialReference": {"wkid": 4326}
+        }
+        # projected_polyline =  project(geometries=[Geometry(polyline)],in_sr=4326,out_sr=102100,gis=gis,geom_type='esriGeometryPolyline')[0]
         feature = {"attributes": feature_obj,
-               "geometry": {"x": pointG.centroid.X, "y": pointG.centroid.Y}
+                   "geometry": polyline
                }
         feature_attributes.append(feature)
         add_results = feature_layer.edit_features(adds = [feature])
         feature_attributes = []
-        #print(add_results)
+        print(add_results)
         count = count + 1
     except Exception as err5:
         print(err5)
@@ -143,3 +174,13 @@ for index, row in data.iterrows():
 #         count = count+1
 print('{} successfully inserted features'.format(count))
 logger.info('{} successfully inserted features'.format(count))
+
+def project_geometry(geometry, in_sr, out_sr, geometry_service_url):
+    """Project geometry to a new spatial reference."""
+    return project(
+        geometries=[Geometry(geometry)],
+        in_sr=in_sr,
+        out_sr=out_sr,
+        gis=gis,
+        geom_type='esriGeometryPolyline'
+    )[0]

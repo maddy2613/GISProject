@@ -7,10 +7,10 @@ import datetime
 import xml.etree.ElementTree as Et
 import os
 
-tree = Et.parse(r'C:\Users\srv\Downloads\test\config.xml')
+tree = Et.parse(r'C:\Users\l7bw\OneDrive - PGE\Desktop\Near Analysis\config.xml')
 root = tree.getroot()
 
-log_path = r"C:\Users\srv\Downloads\test\Logs"
+log_path = r"C:\Users\l7bw\OneDrive - PGE\Desktop\Near Analysis\Logs"
 logger = logging.getLogger("LoggerName")
 log_format = "%(asctime)s - %(levelname)s - %(message)s"
 log_level = logging.INFO
@@ -54,9 +54,9 @@ with arcpy.da.SearchCursor(span_fc, ["OID", "SPAN_ID","AuditId"]) as rows:
             logger.error('error preparing obj {}'.format(err))
             print('error preparing obj {}'.format(err))
             continue
-print(nearest_dict)
+#print(nearest_dict)
 try:
-    search_radius = root.find('search_radius')
+    search_radius = root.find('search_radius').text
     arcpy.analysis.Near(tree_fc,span_fc, search_radius, "NO_LOCATION", "NO_ANGLE","PLANAR","NEAR_FID NEAR_FID; NEAR_DIST NEAR_DIST")
 except arcpy.ExecuteError:
     print(arcpy.GetMessages(2))

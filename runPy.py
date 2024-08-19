@@ -7,6 +7,10 @@ import datetime
 import xml.etree.ElementTree as Et
 import os
 
+def split_into_chunks(array, chunk_size):
+    # Using list comprehension to create the chunks
+    return [array[i:i + chunk_size] for i in range(0, len(array), chunk_size)]
+
 tree = Et.parse(r'C:\Users\l7bw\OneDrive - PGE\Desktop\Near N Append\config.xml')
 root = tree.getroot()
 
@@ -25,40 +29,42 @@ tree_fc = root.find('treefc').text
 hosted_fcItemId = root.find('hostedFeatureItemId').text
 arcpy.env.workspace = sde_connection
 feature_classes = arcpy.ListFeatureClasses()
-if not arcpy.Exists(os.path.join(temp_gdbLoc,"temp.gdb")):
-    arcpy.CreateFileGDB_management(temp_gdbLoc,"temp.gdb")
+if not arcpy.Exists(os.path.join(temp_gdbLoc, "temp.gdb")):
+    arcpy.CreateFileGDB_management(temp_gdbLoc, "temp.gdb")
     print('temp gdb is created')
 
-
 # Loop through the list of feature classes and copy each one
-temp_gdbLoc = os.path.join(temp_gdbLoc,"temp.gdb")
+temp_gdbLoc = os.path.join(temp_gdbLoc, "temp.gdb")
 arcpy.env.workspace = temp_gdbLoc
 arcpy.env.overwriteOutput = True
 for feature_class_name in feature_classes:
     # Define the full path to the feature class in the SDE database
     if feature_class_name == span_fc:
-        arcpy.Copy_management(os.path.join(sde_connection,feature_class_name), os.path.join(temp_gdbLoc,feature_class_name))
+        arcpy.Copy_management(os.path.join(sde_connection, feature_class_name),
+                              os.path.join(temp_gdbLoc, feature_class_name))
         print(f"Copied {feature_class_name} to {temp_gdbLoc}")
     if feature_class_name == tree_fc:
-        arcpy.Copy_management(os.path.join(sde_connection,feature_class_name), os.path.join(temp_gdbLoc,feature_class_name))
+        arcpy.Copy_management(os.path.join(sde_connection, feature_class_name),
+                              os.path.join(temp_gdbLoc, feature_class_name))
         print(f"Copied {feature_class_name} to {temp_gdbLoc}")
 print("All feature classes have been copied.")
 
 span_fc = os.path.join(temp_gdbLoc, span_fc)
 tree_fc = os.path.join(temp_gdbLoc, tree_fc)
 nearest_dict = {}
-with arcpy.da.SearchCursor(span_fc, ["OID", "SPAN_ID","AuditId"]) as rows:
+with arcpy.da.SearchCursor(span_fc, ["OID", "SPAN_ID", "AuditId"]) as rows:
     for row in rows:
         try:
-            nearest_dict[row[0]] = {"field1":row[1],"field2":row[2]}
+            nearest_dict[row[0]] = {"field1": row[1], "field2": row[2]}
         except Exception as err:
             logger.error('error preparing obj {}'.format(err))
             print('error preparing obj {}'.format(err))
             continue
-#print(nearest_dict)
+# print(nearest_dict)
 try:
     search_radius = root.find('search_radius').text
-    arcpy.analysis.Near(tree_fc,span_fc, search_radius, "NO_LOCATION", "NO_ANGLE","PLANAR","NEAR_FID NEAR_FID; NEAR_DIST NEAR_DIST")
+    arcpy.analysis.Near(tree_fc, span_fc, search_radius, "NO_LOCATION", "NO_ANGLE", "PLANAR",
+                        "NEAR_FID NEAR_FID; NEAR_DIST NEAR_DIST")
 except arcpy.ExecuteError:
     print(arcpy.GetMessages(2))
 except Exception as err2:
@@ -66,13 +72,13 @@ except Exception as err2:
 print(print(arcpy.GetMessages()))
 
 logger.info('calculating SPANID and Audit Id fields')
-fields = ['NEAR_FID','SPAN_ID', 'AuditID']
+fields = ['NEAR_FID', 'SPAN_ID', 'AuditID']
 
 # Create update cursor for feature class
 with arcpy.da.UpdateCursor(tree_fc, fields) as cursor:
     for row in cursor:
         try:
-            cal_fields =  nearest_dict[row[0]]
+            cal_fields = nearest_dict[row[0]]
             row[1] = cal_fields['field1']
             row[2] = cal_fields['field2']
             cursor.updateRow(row)
@@ -103,83 +109,83 @@ feature_layer.delete_features(where="1=1")
 # second approach
 #############################################################################
 fields = ['SHAPE@', 'PROJ_ID',
-'PROJ_NAME',
-'PROJ_BUNDLE',
-'PROJ_REGION',
-'PROJ_DIVISION',
-'PROJ_SERVICE_TERRITORY',
-'PROJ_PROGRAM',
-'PROJ_PATROL_TYPE',
-'PROJ_NUMBER',
-'PROJ_TYPE',
-'PROJ_RECORD_TYPE',
-'PROJ_YEAR',
-'PROJ_QUARTER',
-'PROJ_VEG_WORK_STATUS',
-'PRESCRIP_ID',
-'SPECIES_COMMON',
-'SPECIES_SCIENTIFIC',
-'HEIGHT',
-'DBH',
-'STREET',
-'CITY',
-'COUNTY',
-'COMMENTS',
-'TREE_OWNERSHIP',
-'CREATED_DATE',
-'CREATED_BY',
-'LAT',
-'LONG',
-'STATUS',
-'f_VM_Work_Code__c',
-'PRESCRIP_NAME',
-'VM_Veg_Point__c',
-'PRESCRIP_COMMENTS',
-'PRESCRIP_PARCEL_ID',
-'TAG_TYPE',
-'TAG_NUMBER',
-'Actual_Trim_Code',
-'WO_NUM',
-'VegPointName',
-'HFTD',
-'VP_ADDRESS',
-'TW_WO_STATUS',
-'TW_WO_VENDOR',
-'WOLI_TW_PERFORMED_BY',
-'WOLI_TW_VENDOR',
-'WOLI_TW_STATUS',
-'WOLI_COMMENT',
-'PI_LANID',
-'PI_COMPANY',
-'SafetyAlerts',
-'WORK_TYPE',
-'APN',
-'Directions',
-'MWS_Exemption_Description',
-'VM_Master_Parcel_ID__c',
-'Load_date',
-'SPAN_ID',
-'Map_Delivery_Date',
-'WOLI_TW_END',
-'ContactComments_1',
-'CustomerName_2',
-'Customer_Phone_Number_2',
-'ContactComments_2',
-'VM_ACTION_TYPE_C',
-'VegPointSource',
-'MWS',
-'DEAD_DYING',
-'TREE_CREW_ADDED',
-'RADIAL_CLEARANCE',
-'VERTICAL_CLEARANCE',
-'HORIZONTAL_CLEARANCE',
-'OBSERVED_RADIAL_DISTANCE',
-'BRUSH_QUANTITY',
-'TRAFFIC_MITIGATION',
-'TreeWorkPerformedBy',
-'WO_LINE_ITEM_NUM',
-'Constraint_Context',
-'Constraint_Category']  # Replace with your specific fields
+          'PROJ_NAME',
+          'PROJ_BUNDLE',
+          'PROJ_REGION',
+          'PROJ_DIVISION',
+          'PROJ_SERVICE_TERRITORY',
+          'PROJ_PROGRAM',
+          'PROJ_PATROL_TYPE',
+          'PROJ_NUMBER',
+          'PROJ_TYPE',
+          'PROJ_RECORD_TYPE',
+          'PROJ_YEAR',
+          'PROJ_QUARTER',
+          'PROJ_VEG_WORK_STATUS',
+          'PRESCRIP_ID',
+          'SPECIES_COMMON',
+          'SPECIES_SCIENTIFIC',
+          'HEIGHT',
+          'DBH',
+          'STREET',
+          'CITY',
+          'COUNTY',
+          'COMMENTS',
+          'TREE_OWNERSHIP',
+          'CREATED_DATE',
+          'CREATED_BY',
+          'LAT',
+          'LONG',
+          'STATUS',
+          'f_VM_Work_Code__c',
+          'PRESCRIP_NAME',
+          'VM_Veg_Point__c',
+          'PRESCRIP_COMMENTS',
+          'PRESCRIP_PARCEL_ID',
+          'TAG_TYPE',
+          'TAG_NUMBER',
+          'Actual_Trim_Code',
+          'WO_NUM',
+          'VegPointName',
+          'HFTD',
+          'VP_ADDRESS',
+          'TW_WO_STATUS',
+          'TW_WO_VENDOR',
+          'WOLI_TW_PERFORMED_BY',
+          'WOLI_TW_VENDOR',
+          'WOLI_TW_STATUS',
+          'WOLI_COMMENT',
+          'PI_LANID',
+          'PI_COMPANY',
+          'SafetyAlerts',
+          'WORK_TYPE',
+          'APN',
+          'Directions',
+          'MWS_Exemption_Description',
+          'VM_Master_Parcel_ID__c',
+          'Load_date',
+          'SPAN_ID',
+          'Map_Delivery_Date',
+          'WOLI_TW_END',
+          'ContactComments_1',
+          'CustomerName_2',
+          'Customer_Phone_Number_2',
+          'ContactComments_2',
+          'VM_ACTION_TYPE_C',
+          'VegPointSource',
+          'MWS',
+          'DEAD_DYING',
+          'TREE_CREW_ADDED',
+          'RADIAL_CLEARANCE',
+          'VERTICAL_CLEARANCE',
+          'HORIZONTAL_CLEARANCE',
+          'OBSERVED_RADIAL_DISTANCE',
+          'BRUSH_QUANTITY',
+          'TRAFFIC_MITIGATION',
+          'TreeWorkPerformedBy',
+          'WO_LINE_ITEM_NUM',
+          'Constraint_Context',
+          'Constraint_Category']  # Replace with your specific fields
 
 # Read the features with selected fields
 
@@ -192,11 +198,17 @@ with arcpy.da.SearchCursor(tree_fc, fields) as cursor:
                 "attributes": {k: v for k, v in attributes.items() if k != 'SHAPE@'},
                 "geometry": attributes['SHAPE@'].__geo_interface__  # Convert geometry to GeoJSON format
             })
-            feature_layer.edit_features(adds=features)
+            # feature_layer.edit_features(adds=features)
         except Exception as err:
             continue
-        
 
-# Insert selected features into the hosted FeatureLayer
+
+for chunk in split_into_chunks(features, 1500):
+    try:
+        feature_layer.edit_features(adds=chunk)
+    except Exception as err:
+        print(err)
+        continue
+
 
 print('Features added successfully.')

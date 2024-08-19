@@ -7,10 +7,10 @@ import datetime
 import xml.etree.ElementTree as Et
 import os
 
-tree = Et.parse(r'C:\Users\l7bw\OneDrive - PGE\Desktop\Near Analysis\config.xml')
+tree = Et.parse(r'C:\Users\l7bw\OneDrive - PGE\Desktop\Near N Append\config.xml')
 root = tree.getroot()
 
-log_path = r"C:\Users\l7bw\OneDrive - PGE\Desktop\Near Analysis\Logs"
+log_path = r"C:\Users\l7bw\OneDrive - PGE\Desktop\Near N Append\Logs"
 logger = logging.getLogger("LoggerName")
 log_format = "%(asctime)s - %(levelname)s - %(message)s"
 log_level = logging.INFO
@@ -91,29 +91,112 @@ feature_layer.delete_features(where="1=1")
 # first approach
 ##################################################################
 # Read the FeatureClass into a FeatureSet
-feature_set = arcpy.FeatureSet()
-feature_set.load(tree_fc)
-# Convert arcpy FeatureSet to ArcGIS FeatureCollection
-features = [f for f in feature_set]
+# feature_set = arcpy.FeatureSet()
+# feature_set.load(tree_fc)
+# # Convert arcpy FeatureSet to ArcGIS FeatureCollection
+# features = [f for f in feature_set]
 
-# Insert features into the hosted FeatureLayer
-feature_layer.edit_features(adds=features)
+# # Insert features into the hosted FeatureLayer
+# feature_layer.edit_features(adds=features)
 
 #############################################################################
 # second approach
 #############################################################################
-# fields = ['SHAPE@', 'field1', 'field2', 'field3']  # Replace with your specific fields
+fields = ['SHAPE@', 'PROJ_ID',
+'PROJ_NAME',
+'PROJ_BUNDLE',
+'PROJ_REGION',
+'PROJ_DIVISION',
+'PROJ_SERVICE_TERRITORY',
+'PROJ_PROGRAM',
+'PROJ_PATROL_TYPE',
+'PROJ_NUMBER',
+'PROJ_TYPE',
+'PROJ_RECORD_TYPE',
+'PROJ_YEAR',
+'PROJ_QUARTER',
+'PROJ_VEG_WORK_STATUS',
+'PRESCRIP_ID',
+'SPECIES_COMMON',
+'SPECIES_SCIENTIFIC',
+'HEIGHT',
+'DBH',
+'STREET',
+'CITY',
+'COUNTY',
+'COMMENTS',
+'TREE_OWNERSHIP',
+'CREATED_DATE',
+'CREATED_BY',
+'LAT',
+'LONG',
+'STATUS',
+'f_VM_Work_Code__c',
+'PRESCRIP_NAME',
+'VM_Veg_Point__c',
+'PRESCRIP_COMMENTS',
+'PRESCRIP_PARCEL_ID',
+'TAG_TYPE',
+'TAG_NUMBER',
+'Actual_Trim_Code',
+'WO_NUM',
+'VegPointName',
+'HFTD',
+'VP_ADDRESS',
+'TW_WO_STATUS',
+'TW_WO_VENDOR',
+'WOLI_TW_PERFORMED_BY',
+'WOLI_TW_VENDOR',
+'WOLI_TW_STATUS',
+'WOLI_COMMENT',
+'PI_LANID',
+'PI_COMPANY',
+'SafetyAlerts',
+'WORK_TYPE',
+'APN',
+'Directions',
+'MWS_Exemption_Description',
+'VM_Master_Parcel_ID__c',
+'Load_date',
+'SPAN_ID',
+'Map_Delivery_Date',
+'WOLI_TW_END',
+'ContactComments_1',
+'CustomerName_2',
+'Customer_Phone_Number_2',
+'ContactComments_2',
+'VM_ACTION_TYPE_C',
+'VegPointSource',
+'MWS',
+'DEAD_DYING',
+'TREE_CREW_ADDED',
+'RADIAL_CLEARANCE',
+'VERTICAL_CLEARANCE',
+'HORIZONTAL_CLEARANCE',
+'OBSERVED_RADIAL_DISTANCE',
+'BRUSH_QUANTITY',
+'TRAFFIC_MITIGATION',
+'TreeWorkPerformedBy',
+'WO_LINE_ITEM_NUM',
+'Constraint_Context',
+'Constraint_Category']  # Replace with your specific fields
 
-# # Read the features with selected fields
-# features = []
-# with arcpy.da.SearchCursor(tree_fc, fields) as cursor:
-#     for row in cursor:
-#         attributes = dict(zip(fields, row))
-#         features.append({
-#             "attributes": {k: v for k, v in attributes.items() if k != 'SHAPE@'},
-#             "geometry": attributes['SHAPE@'].__geo_interface__  # Convert geometry to GeoJSON format
-#         })
+# Read the features with selected fields
 
-# # Insert selected features into the hosted FeatureLayer
-# feature_layer.edit_features(adds=features)
+with arcpy.da.SearchCursor(tree_fc, fields) as cursor:
+    for row in cursor:
+        try:
+            attributes = dict(zip(fields, row))
+            features = []
+            features.append({
+                "attributes": {k: v for k, v in attributes.items() if k != 'SHAPE@'},
+                "geometry": attributes['SHAPE@'].__geo_interface__  # Convert geometry to GeoJSON format
+            })
+            feature_layer.edit_features(adds=features)
+        except Exception as err:
+            continue
+        
+
+# Insert selected features into the hosted FeatureLayer
+
 print('Features added successfully.')

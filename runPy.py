@@ -11,6 +11,16 @@ def split_into_chunks(array, chunk_size):
     # Using list comprehension to create the chunks
     return [array[i:i + chunk_size] for i in range(0, len(array), chunk_size)]
 
+def checkandreplacespacialcharacter(chunk):
+    for _obj in chunk:
+        for key, value in _obj.attributes.items(): # Iterate over all attributes of the object
+            if isinstance(value, str):  # Check if the attribute is a string
+                # Replace special characters with the specified string
+                new_value = value.replace("<","&lt;").replace(">","&gt;")
+                _obj[key] = new_value  # Update the attribute with the new value
+    return chunk
+
+
 tree = Et.parse(r'C:\Users\l7bw\OneDrive - PGE\Desktop\Near N Append\config.xml')
 root = tree.getroot()
 
@@ -205,6 +215,7 @@ with arcpy.da.SearchCursor(tree_fc, fields) as cursor:
 
 for chunk in split_into_chunks(features, 1500):
     try:
+        chunk = checkandreplacespacialcharacter(chunk)
         feature_layer.edit_features(adds=chunk)
     except Exception as err:
         print(err)
